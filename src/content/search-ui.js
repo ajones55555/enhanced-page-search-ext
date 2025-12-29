@@ -72,7 +72,7 @@ class SearchPanel {
     return `
       <div class="eps-panel">
         <div class="eps-header">
-          <span class="eps-title">Enhanced Search</span>
+          <span class="eps-title">Regex Search</span>
           <div class="eps-header-actions">
             <button id="eps-settings" class="eps-icon-btn" title="Settings">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
