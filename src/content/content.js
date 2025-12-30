@@ -261,7 +261,9 @@
         // Search view elements
         searchView: container.querySelector('#eps-search-view'),
         descriptionInput: container.querySelector('#eps-description'),
+        clearDescriptionBtn: container.querySelector('#eps-clear-description'),
         regexInput: container.querySelector('#eps-regex'),
+        clearRegexBtn: container.querySelector('#eps-clear-regex'),
         generateBtn: container.querySelector('#eps-generate'),
         prevBtn: container.querySelector('#eps-prev'),
         nextBtn: container.querySelector('#eps-next'),
@@ -319,7 +321,14 @@
               <div class="eps-field">
                 <label for="eps-description">Describe what to find</label>
                 <div class="eps-input-group">
-                  <input type="text" id="eps-description" placeholder="e.g., email addresses, phone numbers, URLs" />
+                  <div class="eps-input-wrapper">
+                    <input type="text" id="eps-description" placeholder="e.g., email addresses, phone numbers, URLs" />
+                    <button type="button" class="eps-clear-btn" id="eps-clear-description" title="Clear">
+                      <svg width="12" height="12" viewBox="0 0 14 14" fill="currentColor">
+                        <path d="M1.4 14L0 12.6L5.6 7L0 1.4L1.4 0L7 5.6L12.6 0L14 1.4L8.4 7L14 12.6L12.6 14L7 8.4L1.4 14Z"/>
+                      </svg>
+                    </button>
+                  </div>
                   <button id="eps-generate" class="eps-btn eps-btn-primary" title="Generate regex from description">
                     <span class="eps-btn-text">Generate</span>
                     <span id="eps-loading" class="eps-spinner"></span>
@@ -328,7 +337,14 @@
               </div>
               <div class="eps-field">
                 <label for="eps-regex">Regex pattern</label>
-                <input type="text" id="eps-regex" placeholder="Enter regex or generate from description above" />
+                <div class="eps-input-wrapper">
+                  <input type="text" id="eps-regex" placeholder="Enter regex or generate from description above" />
+                  <button type="button" class="eps-clear-btn" id="eps-clear-regex" title="Clear">
+                    <svg width="12" height="12" viewBox="0 0 14 14" fill="currentColor">
+                      <path d="M1.4 14L0 12.6L5.6 7L0 1.4L1.4 0L7 5.6L12.6 0L14 1.4L8.4 7L14 12.6L12.6 14L7 8.4L1.4 14Z"/>
+                    </svg>
+                  </button>
+                </div>
               </div>
               <div id="eps-error" class="eps-error"></div>
               <div class="eps-footer">
@@ -469,6 +485,33 @@
           letter-spacing: 0.5px;
         }
         .eps-input-group { display: flex; gap: 8px; }
+        .eps-input-wrapper {
+          position: relative;
+          flex: 1;
+          display: flex;
+        }
+        .eps-input-wrapper input {
+          padding-right: 32px;
+        }
+        .eps-clear-btn {
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          color: var(--eps-text-secondary);
+          cursor: pointer;
+          padding: 4px;
+          border-radius: 4px;
+          display: none;
+          align-items: center;
+          justify-content: center;
+          opacity: 0.6;
+          transition: opacity 0.15s ease;
+        }
+        .eps-clear-btn:hover { opacity: 1; }
+        .eps-clear-btn.visible { display: flex; }
         input[type="text"], input[type="password"] {
           flex: 1;
           padding: 10px 12px;
@@ -654,6 +697,26 @@
           }
         }, 300);
       });
+      // Clear button visibility
+      this.elements.descriptionInput.addEventListener('input', () => {
+        this.elements.clearDescriptionBtn.classList.toggle('visible', this.elements.descriptionInput.value.length > 0);
+      });
+      this.elements.regexInput.addEventListener('input', () => {
+        this.elements.clearRegexBtn.classList.toggle('visible', this.elements.regexInput.value.length > 0);
+      });
+      // Clear button click handlers
+      this.elements.clearDescriptionBtn.addEventListener('click', () => {
+        this.elements.descriptionInput.value = '';
+        this.elements.clearDescriptionBtn.classList.remove('visible');
+        this.elements.descriptionInput.focus();
+      });
+      this.elements.clearRegexBtn.addEventListener('click', () => {
+        this.elements.regexInput.value = '';
+        this.elements.clearRegexBtn.classList.remove('visible');
+        this.elements.regexInput.focus();
+        this.callbacks.onSearch('');
+        this.setMatchCount(0);
+      });
       this.elements.prevBtn.addEventListener('click', () => this.handleNavigation('previous'));
       this.elements.nextBtn.addEventListener('click', () => this.handleNavigation('next'));
       this.elements.closeBtn.addEventListener('click', () => this.callbacks.onClose());
@@ -820,7 +883,10 @@
       this.hideSettings();
     }
 
-    setRegex(regex) { this.elements.regexInput.value = regex; }
+    setRegex(regex) {
+      this.elements.regexInput.value = regex;
+      this.elements.clearRegexBtn.classList.toggle('visible', regex.length > 0);
+    }
 
     setLoading(isLoading) {
       this.elements.generateBtn.disabled = isLoading;
